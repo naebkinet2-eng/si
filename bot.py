@@ -1,8 +1,3 @@
-# ============================================================
-#  TikTok Rewards Bot
-#  Хранение данных в памяти, отчёты в Telegram-канале
-#  Запуск: python bot.py
-# ============================================================
 
 import asyncio
 import json
@@ -56,8 +51,7 @@ TASK_CONFIG = {
     "task_200": {"count": 200, "reward": 600, "label": "200 скриншотов"},
 }
 
-# Картинка для главного экрана — красивый TikTok/neon баннер
-WELCOME_IMAGE_URL = "https://i.imgur.com/Q8Q7jYK.jpeg"
+WELCOME_IMAGE_URL = "https://i.ibb.co/TMcrTM8W/2026-03-09-221324358.png"
 
 # ─────────────────────────────────────────────
 #  ХРАНИЛИЩЕ В ПАМЯТИ
@@ -514,21 +508,20 @@ async def cmd_start(message: Message):
         )
         # Новый пользователь — показываем приветствие с картинкой
         welcome_caption = (
-            f"🌟 *Добро пожаловать в TikTok Rewards!*\n\n"
-            f"Привет, {message.from_user.first_name}! "
+            f"🌟 *Рады приветствовать вас в нашем магазине!*\n\n"
+            f"Добрый день 👋 {message.from_user.first_name}! "
             f"Ты попал туда, где активность в TikTok превращается в реальные награды!\n\n"
             f"━━━━━━━━━━━━━━━━━━━\n"
-            f"🎯 *Как это работает:*\n\n"
+            f"*👨‍💻Сайт: Trava.ct.ws*\n\n"
             f"1️⃣ Подключи свой TikTok аккаунт\n"
             f"2️⃣ Выполняй задания — отправляй скриншоты\n"
             f"3️⃣ Копи 💎 баллы\n"
             f"4️⃣ Купи уникальный код в магазине\n"
-            f"5️⃣ Отправь код оператору {OPERATOR_USERNAME} и получи приз!\n\n"
+            f"5️⃣ Отправь код оператору {OPERATOR_USERNAME} и получи пробы нашего товара!\n\n"
+            f"✍️Чтобы начать выполнять простое задание напишите город оператору, дабы предоставить наличие проб в вашем городе! @OldSiWS\n"
             f"━━━━━━━━━━━━━━━━━━━\n"
             f"💡 *Задания:*\n"
-            f"📸 50 скринов  → 100 💎\n"
-            f"📸 100 скринов → 250 💎\n"
-            f"📸 200 скринов → 600 💎\n\n"
+            f"📸 150 скринов  → 150 💎\n"
             f"Начнём? 👇"
         )
         await message.answer_photo(
@@ -561,7 +554,7 @@ async def help_handler(callback: CallbackQuery):
     try:
         await callback.message.edit_caption(
             caption=(
-                f"❓ *Помощь*\n\n"
+                f"❓ *Инструкции*\n\n"
                 f"━━━━━━━━━━━━━━━━━━━\n"
                 f"*Как подключить TikTok?*\n"
                 f"Нажми «🎵 Подключить TikTok» и отправь никнейм\n\n"
@@ -581,7 +574,7 @@ async def help_handler(callback: CallbackQuery):
         )
     except Exception:
         await callback.message.edit_text(
-            f"❓ *Помощь*\n\n"
+            f"❓ *Инструкции*\n\n"
             f"*Как подключить TikTok?*\nНажми «🎵 Подключить TikTok» и отправь никнейм\n\n"
             f"*Как получить приз?*\n1. Накопи 500+ 💎\n2. Купи код в магазине\n3. Отправь оператору {OPERATOR_USERNAME}\n\n"
             f"💬 Поддержка: {OPERATOR_USERNAME}",
