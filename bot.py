@@ -1122,14 +1122,38 @@ async def add_points_cmd(message: Message):
 #  ЗАПУСК
 # ─────────────────────────────────────────────
 
+async def health_server():
+    """Фиктивный HTTP сервер — нужен только чтобы Render не ругался на отсутствие порта."""
+    from aiohttp import web
+
+    async def handle(request):
+        return web.Response(text="OK")
+
+    app = web.Application()
+    app.router.add_get("/", handle)
+    app.router.add_get("/health", handle)
+
+    port = int(os.getenv("PORT", 10000))
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", port)
+    await site.start()
+    logger.info(f"🌐 Health server started on port {port}")
+
+
 async def main():
     global _bot
     _bot = Bot(token=BOT_TOKEN)
     await load_all_from_channel()
     dp = Dispatcher(storage=MemoryStorage())
     dp.include_router(router)
+
+    # Запускаем HTTP сервер и бота параллельно
+    await asyncio.gather(
+        health_server(),
+        dp.start_polling(_bot, allowed_updates=dp.resolve_used_update_types()),
+    )
     logger.info("🤖 Bot started!")
-    await dp.start_polling(_bot, allowed_updates=dp.resolve_used_update_types())
 
 
 if __name__ == "__main__":
