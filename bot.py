@@ -1041,6 +1041,83 @@ async def add_points_cmd(message: Message):
 
 
 # ══════════════════════════════════════════════
+#  РУЧНОЕ ДОБАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯ
+# ══════════════════════════════════════════════
+
+@router.message(Command("adduser"))
+async def adduser_cmd(message: Message):
+    if not is_admin(message.from_user.id):
+        return
+    parts = message.text.split()
+    if len(parts) < 2:
+        await message.answer(
+            "Использование: `/adduser <user_id> [имя]`
+
+"
+            "Пример: `/adduser 123456789 Иван`",
+            parse_mode="Markdown",
+        )
+        return
+    try:
+        uid = int(parts[1])
+    except ValueError:
+        await message.answer("⚠️ ID должен быть числом.")
+        return
+
+    name = " ".join(parts[2:]) if len(parts) > 2 else f"User{uid}"
+
+    if uid in USERS:
+        await message.answer(f"ℹ️ Пользователь `{uid}` уже есть в базе.
+Имя: {USERS[uid]['full_name']}", parse_mode="Markdown")
+        return
+
+    await create_user(uid, "", name)
+    await message.answer(
+        f"✅ Пользователь добавлен!
+
+"
+        f"🆔 ID: `{uid}`
+"
+        f"👤 Имя: {name}
+
+"
+        f"Теперь он получит рассылку.",
+        parse_mode="Markdown",
+    )
+
+
+
+# ══════════════════════════════════════════════
+#  РУЧНОЕ ДОБАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯ
+# ══════════════════════════════════════════════
+
+@router.message(Command("adduser"))
+async def adduser_cmd(message: Message):
+    if not is_admin(message.from_user.id):
+        return
+    parts = message.text.split()
+    if len(parts) < 2:
+        await message.answer(
+            "Использование: `/adduser <user_id> [имя]`\n\nПример: `/adduser 123456789 Иван`",
+            parse_mode="Markdown",
+        )
+        return
+    try:
+        uid = int(parts[1])
+    except ValueError:
+        await message.answer("⚠️ ID должен быть числом.")
+        return
+    name = " ".join(parts[2:]) if len(parts) > 2 else f"User{uid}"
+    if uid in USERS:
+        await message.answer(f"ℹ️ Пользователь `{uid}` уже есть в базе.\nИмя: {USERS[uid]['full_name']}", parse_mode="Markdown")
+        return
+    await create_user(uid, "", name)
+    await message.answer(
+        f"✅ Добавлен!\n\n🆔 ID: `{uid}`\n👤 Имя: {name}\n\nТеперь получит рассылку.",
+        parse_mode="Markdown",
+    )
+
+# ══════════════════════════════════════════════
 #  РАССЫЛКА
 # ══════════════════════════════════════════════
 
@@ -1049,43 +1126,52 @@ async def broadcast_cmd(message: Message):
     if not is_admin(message.from_user.id):
         return
 
-    # Текст рассылки — всё что после команды
     text = message.text.replace("/broadcast", "").strip()
     if not text:
         await message.answer(
-            "📢 *Использование:*\n`/broadcast Текст вашего сообщения`\n\n"
-            "Поддерживается Markdown — **жирный**, _курсив_, `код`",
+            "📢 *Использование:*\n`/broadcast Текст`",
             parse_mode="Markdown",
         )
         return
 
-    users = await get_all_users()
-    total   = len(users)
+    # Берём ID из памяти + читаем из закреплённого индекса (ловим незагруженных)
+    all_ids = list(USER_MSG_IDS.keys())
+    try:
+        chat   = await _bot.get_chat(DB_CHANNEL_ID)
+        pinned = chat.pinned_message
+        if pinned and pinned.text and "#index" in pinned.text:
+            json_str = extract_json(pinned.text)
+            if json_str:
+                index = json.loads(json_str)
+                for uid_str in index.get("users", {}).keys():
+                    uid = int(uid_str)
+                    if uid not in all_ids:
+                        all_ids.append(uid)
+    except Exception as e:
+        logger.warning(f"Не удалось дочитать индекс: {e}")
+
+    total   = len(all_ids)
     success = 0
     failed  = 0
 
-    status_msg = await message.answer(f"📤 Начинаю рассылку для {total} пользователей...")
+    status_msg = await message.answer(f"📤 Рассылка для {total} пользователей...")
 
-    for user in users:
+    for uid in all_ids:
         try:
-            await _bot.send_message(
-                chat_id=user["user_id"],
-                text=text,
-                parse_mode="Markdown",
-            )
+            await _bot.send_message(chat_id=uid, text=text, parse_mode="Markdown")
             success += 1
         except Exception:
             failed += 1
-        # Небольшая пауза чтобы не словить flood от Telegram
         await asyncio.sleep(0.05)
 
     await status_msg.edit_text(
         f"✅ *Рассылка завершена!*\n\n"
         f"👥 Всего: {total}\n"
         f"✅ Доставлено: {success}\n"
-        f"❌ Не доставлено: {failed} (заблокировали бота)",
+        f"❌ Не доставлено: {failed}",
         parse_mode="Markdown",
     )
+
 
 
 # ─────────────────────────────────────────────
