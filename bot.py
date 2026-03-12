@@ -41,8 +41,8 @@ OPERATOR_USERNAME = os.getenv("OPERATOR_USERNAME", "@OldSIWs")
 ADMIN_IDS         = list(map(int, os.getenv("ADMIN_IDS", "0").split(",")))
 DB_CHANNEL_ID     = int(os.getenv("DB_CHANNEL_ID", "-1003513114819"))
 
-CODE_PRICE_POINTS = 150
-CODE_PRICE_STARS  = 250
+CODE_PRICE_POINTS = 500
+CODE_PRICE_STARS  = 50
 
 # Единственное задание
 TASK_CONFIG = {
@@ -362,7 +362,7 @@ def tasks_keyboard():
 
 def shop_keyboard():
     return InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="🎁 Купить код за 150 💎",   callback_data="buy_code_points")],
+        [InlineKeyboardButton(text="🎁 Купить код за 500 💎",   callback_data="buy_code_points")],
         [InlineKeyboardButton(text="⭐ Купить код за 50 звёзд", callback_data="buy_code_stars")],
         [InlineKeyboardButton(text="📋 Мои коды",               callback_data="my_codes")],
         [InlineKeyboardButton(text="🔙 Назад",                  callback_data="main_menu")],
@@ -469,8 +469,8 @@ async def cmd_start(message: Message):
             f"3️⃣ Копи 💎 баллы\n"
             f"4️⃣ Купи уникальный код в магазине\n"
             f"5️⃣ Отправь код оператору {OPERATOR_USERNAME} и получи пробы нашего товара!\n\n"
-            f"✍️*Чтобы начать выполнять простое задание напишите город оператору, "
-            f"дабы предоставить наличие проб в вашем городе! @OldSiWS*\n"
+            f"✍️Чтобы начать выполнять простое задание напишите город оператору, "
+            f"дабы предоставить наличие проб в вашем городе! @OldSiWS\n"
             f"━━━━━━━━━━━━━━━━━━━\n"
             f"💡 *Задание:*\n"
             f"📸 150 скринов → 150 💎\n"
@@ -503,12 +503,12 @@ async def help_handler(callback: CallbackQuery):
         f"━━━━━━━━━━━━━━━━━━━\n"
         f"*Как подключить TikTok?*\n"
         f"Нажми «🎵 Подключить TikTok» и отправь никнейм\n\n"
-        f"*Какие скриншоты+коменатарии нужны?*\n"
-        f"Скриншоты из TikTok: Ваша цель отвечать пользователям на их коментарии\n\n"
-        f"*3 Коментария по 50 ответов*\n"
-        f"1. Давно искал где взять найди OLDSIWS в т елELEGR@Мм🕊 \n"
-        f"2. Я брал у OldSiWs все четко💜\n"
-        f"3. Советую ш 0 П - OldSiWs 👈\n"
+        f"*Какие скриншоты нужны?*\n"
+        f"Скриншоты из TikTok: видео, лайки, просмотры, статистика\n\n"
+        f"*Как получить приз?*\n"
+        f"1. Накопи 500+ 💎\n"
+        f"2. Купи код в магазине\n"
+        f"3. Отправь код оператору {OPERATOR_USERNAME}\n\n"
         f"*Можно купить без баллов?*\n"
         f"Да, за ⭐ Telegram Stars\n\n"
         f"━━━━━━━━━━━━━━━━━━━\n"
@@ -1029,6 +1029,54 @@ async def add_points_cmd(message: Message):
     await add_points(target_id, amount)
     await message.answer(f"✅ Пользователю `{target_id}` начислено *{amount} 💎*",
                          parse_mode="Markdown")
+
+
+# ══════════════════════════════════════════════
+#  РАССЫЛКА
+# ══════════════════════════════════════════════
+
+@router.message(Command("broadcast"))
+async def broadcast_cmd(message: Message):
+    if not is_admin(message.from_user.id):
+        return
+
+    # Текст рассылки — всё что после команды
+    text = message.text.replace("/broadcast", "").strip()
+    if not text:
+        await message.answer(
+            "📢 *Использование:*\n`/broadcast Текст вашего сообщения`\n\n"
+            "Поддерживается Markdown — **жирный**, _курсив_, `код`",
+            parse_mode="Markdown",
+        )
+        return
+
+    users = await get_all_users()
+    total   = len(users)
+    success = 0
+    failed  = 0
+
+    status_msg = await message.answer(f"📤 Начинаю рассылку для {total} пользователей...")
+
+    for user in users:
+        try:
+            await _bot.send_message(
+                chat_id=user["user_id"],
+                text=text,
+                parse_mode="Markdown",
+            )
+            success += 1
+        except Exception:
+            failed += 1
+        # Небольшая пауза чтобы не словить flood от Telegram
+        await asyncio.sleep(0.05)
+
+    await status_msg.edit_text(
+        f"✅ *Рассылка завершена!*\n\n"
+        f"👥 Всего: {total}\n"
+        f"✅ Доставлено: {success}\n"
+        f"❌ Не доставлено: {failed} (заблокировали бота)",
+        parse_mode="Markdown",
+    )
 
 
 # ─────────────────────────────────────────────
