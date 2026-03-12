@@ -171,8 +171,13 @@ async def save_index():
         else:
             msg = await _bot.send_message(chat_id=DB_CHANNEL_ID, text=text)
             INDEX_MSG_ID = msg.message_id
-            with open("index_id.txt", "w") as f:
-                f.write(str(INDEX_MSG_ID))
+            try:
+                await _bot.pin_chat_message(chat_id=DB_CHANNEL_ID,
+                                            message_id=INDEX_MSG_ID,
+                                            disable_notification=True)
+                logger.info(f"📌 Индекс закреплён (msg_id={INDEX_MSG_ID})")
+            except Exception as pin_err:
+                logger.warning(f"Не удалось закрепить: {pin_err}")
     except Exception as e:
         logger.error(f"save_index: {e}")
 
@@ -184,14 +189,17 @@ async def save_index():
 async def load_all_from_channel():
     global INDEX_MSG_ID
     logger.info("📥 Загружаю данные из канала...")
-    if not os.path.exists("index_id.txt"):
-        logger.info("📭 Первый запуск — данных нет")
-        return
     try:
-        with open("index_id.txt") as f:
-            INDEX_MSG_ID = int(f.read().strip())
-    except Exception:
-        logger.info("📭 Не удалось прочитать index_id.txt")
+        chat   = await _bot.get_chat(DB_CHANNEL_ID)
+        pinned = chat.pinned_message
+        if pinned and pinned.text and "#index" in pinned.text:
+            INDEX_MSG_ID = pinned.message_id
+            logger.info(f"📌 Найден закреплённый индекс (msg_id={INDEX_MSG_ID})")
+        else:
+            logger.info("📭 Закреплённый индекс не найден — первый запуск")
+            return
+    except Exception as e:
+        logger.error(f"Ошибка получения чата: {e}")
         return
     try:
         fwd      = await _bot.forward_message(DB_CHANNEL_ID, DB_CHANNEL_ID, INDEX_MSG_ID)
@@ -199,6 +207,7 @@ async def load_all_from_channel():
         json_str = extract_json(raw)
         await _bot.delete_message(DB_CHANNEL_ID, fwd.message_id)
         if not json_str:
+            logger.warning("Индекс пустой")
             return
         index = json.loads(json_str)
     except Exception as e:
