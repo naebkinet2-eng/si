@@ -1051,10 +1051,7 @@ async def adduser_cmd(message: Message):
     parts = message.text.split()
     if len(parts) < 2:
         await message.answer(
-            "Использование: `/adduser <user_id> [имя]`
-
-"
-            "Пример: `/adduser 123456789 Иван`",
+            "Использование: `/adduser <user_id> [имя]`\n\nПример: `/adduser 123456789 Иван`",
             parse_mode="Markdown",
         )
         return
@@ -1067,30 +1064,14 @@ async def adduser_cmd(message: Message):
     name = " ".join(parts[2:]) if len(parts) > 2 else f"User{uid}"
 
     if uid in USERS:
-        await message.answer(f"ℹ️ Пользователь `{uid}` уже есть в базе.
-Имя: {USERS[uid]['full_name']}", parse_mode="Markdown")
+        await message.answer(f"ℹ️ Пользователь `{uid}` уже есть в базе.\nИмя: {USERS[uid]['full_name']}", parse_mode="Markdown")
         return
 
     await create_user(uid, "", name)
     await message.answer(
-        f"✅ Пользователь добавлен!
-
-"
-        f"🆔 ID: `{uid}`
-"
-        f"👤 Имя: {name}
-
-"
-        f"Теперь он получит рассылку.",
+        f"✅ Добавлен!\n\n🆔 ID: `{uid}`\n👤 Имя: {name}\n\nТеперь получит рассылку.",
         parse_mode="Markdown",
     )
-
-
-
-# ══════════════════════════════════════════════
-#  РУЧНОЕ ДОБАВЛЕНИЕ ПОЛЬЗОВАТЕЛЯ
-# ══════════════════════════════════════════════
-
 @router.message(Command("adduser"))
 async def adduser_cmd(message: Message):
     if not is_admin(message.from_user.id):
