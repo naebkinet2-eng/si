@@ -1115,27 +1115,34 @@ async def broadcast_cmd(message: Message):
         )
         return
 
-    # Берём ID из памяти + читаем из закреплённого индекса (ловим незагруженных)
+    status_msg = await message.answer("🔍 Читаю список пользователей...")
+
+    # Форвардим закреплённое сообщение чтобы получить полный текст индекса
     all_ids = list(USER_MSG_IDS.keys())
     try:
         chat   = await _bot.get_chat(DB_CHANNEL_ID)
         pinned = chat.pinned_message
-        if pinned and pinned.text and "#index" in pinned.text:
-            json_str = extract_json(pinned.text)
+        if pinned:
+            # Форвардим для получения полного текста
+            fwd = await _bot.forward_message(DB_CHANNEL_ID, DB_CHANNEL_ID, pinned.message_id)
+            raw = fwd.text or ""
+            await _bot.delete_message(DB_CHANNEL_ID, fwd.message_id)
+            json_str = extract_json(raw)
             if json_str:
                 index = json.loads(json_str)
                 for uid_str in index.get("users", {}).keys():
                     uid = int(uid_str)
                     if uid not in all_ids:
                         all_ids.append(uid)
+                logger.info(f"Из индекса загружено {len(all_ids)} ID")
     except Exception as e:
-        logger.warning(f"Не удалось дочитать индекс: {e}")
+        logger.warning(f"Не удалось прочитать индекс: {e}")
 
     total   = len(all_ids)
     success = 0
     failed  = 0
 
-    status_msg = await message.answer(f"📤 Рассылка для {total} пользователей...")
+    await status_msg.edit_text(f"📤 Рассылка для {total} пользователей...")
 
     for uid in all_ids:
         try:
@@ -1152,7 +1159,6 @@ async def broadcast_cmd(message: Message):
         f"❌ Не доставлено: {failed}",
         parse_mode="Markdown",
     )
-
 
 
 # ─────────────────────────────────────────────
