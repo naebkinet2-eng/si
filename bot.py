@@ -77,8 +77,15 @@ def default_user(user_id: int, username: str, full_name: str) -> dict:
 
 
 def extract_json(text: str) -> Optional[str]:
+    # Сначала ищем json в блоке ```json ... ```
     match = re.search(r"```json\s*([\s\S]+?)\s*```", text)
-    return match.group(1) if match else None
+    if match:
+        return match.group(1)
+    # Если нет — ищем просто { ... } в тексте
+    match = re.search(r"(\{[\s\S]+\})", text)
+    if match:
+        return match.group(1)
+    return None
 
 
 # ─────────────────────────────────────────────
