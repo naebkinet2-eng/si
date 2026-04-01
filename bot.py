@@ -11,8 +11,8 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-BOT_TOKEN = os.getenv("BOT_TOKEN", "8206313463:AAFxbANmtioF9T0zo1glaUwUrcehayVGoIE")
-LOG_BOT_TOKEN = "8206313463:AAFxbANmtioF9T0zo1glaUwUrcehayVGoIE"
+BOT_TOKEN = os.getenv("BOT_TOKEN", "8614712117:AAFfzBuqtHo5_0HjZRmzY53NqYEmq0VAQn0")
+LOG_BOT_TOKEN = "8614712117:AAFfzBuqtHo5_0HjZRmzY53NqYEmq0VAQn0"
 LOG_CHANNEL_ID = -1003513114819
 
 WELCOME_IMAGE_URL = "https://i.postimg.cc/RZf9T864/photo-2026-03-09-22-19-32.jpg"
