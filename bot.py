@@ -28,18 +28,18 @@ async def log_user(user):
     try:
         log_bot = Bot(token=LOG_BOT_TOKEN)
         now = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
-        username = f"@{user.username}" if user.username else "—"
+        username = f"@{user.username}" if user.username else "нет"
         profile_link = f"tg://user?id={user.id}"
         text = (
-            f"👤 Новый пользователь зашёл в бот\n"
-            f"🔗 Профиль: {profile_link}\n"
-            f"📛 Имя: {user.first_name} {user.last_name or ''} ({username})\n"
-            f"🕐 Время: {now}"
+            f"Новый пользователь зашёл в бот\n"
+            f"Профиль: {profile_link}\n"
+            f"Имя: {user.first_name} {user.last_name or ''} ({username})\n"
+            f"Время: {now}"
         )
         await log_bot.send_message(chat_id=LOG_CHANNEL_ID, text=text)
         await log_bot.session.close()
     except Exception as e:
-        logger.error(f"Ошибка логирования: {e}")
+        logger.error(f"Logging error: {e}")
 
 @router.message(CommandStart())
 async def cmd_start(message: Message):
@@ -50,7 +50,7 @@ async def cmd_start(message: Message):
         f"Добрый день 👋 {message.from_user.first_name}! "
         f"Ты попал туда, Куда надо!\n\n"
         f"━━━━━━━━━━━━━━━━━━━\n"
-        f"*ОТЗЫВЫ: 👨‍💻Сайт: Trava.ct.ws*\n\n"
+        f"*ОТЗЫВЫ: 👨\u200d💻Сайт: Trava.ct.ws*\n\n"
         f"ДЛЯ ЗАКАЗА ПИСАТЬ ОПЕРАТОРУ: @OldSiWs\n"
         f"ПРАЙС, НАЛИЧИЕ, КОНСУЛЬТАЦИЯ: @OldSiWs"
     )
@@ -73,19 +73,19 @@ async def main():
     from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 
     bot = Bot(token=BOT_TOKEN)
-    dp  = Dispatcher()
+    dp = Dispatcher()
     dp.include_router(router)
 
-    RENDER_URL   = os.getenv("RENDER_EXTERNAL_URL", "https://si-wdhs.onrender.com")
+    RENDER_URL = os.getenv("RENDER_EXTERNAL_URL", "https://si-wdhs.onrender.com")
     WEBHOOK_PATH = f"/webhook/{BOT_TOKEN}"
-    WEBHOOK_URL  = f"{RENDER_URL}{WEBHOOK_PATH}"
+    WEBHOOK_URL = f"{RENDER_URL}{WEBHOOK_PATH}"
 
     await bot.set_webhook(
         url=WEBHOOK_URL,
         allowed_updates=["message"],
         drop_pending_updates=True,
     )
-    logger.info(f"✅ Webhook: {WEBHOOK_URL}")
+    logger.info(f"Webhook: {WEBHOOK_URL}")
 
     app = web.Application()
 
@@ -98,22 +98,14 @@ async def main():
     SimpleRequestHandler(dispatcher=dp, bot=bot).register(app, path=WEBHOOK_PATH)
     setup_application(app, dp, bot=bot)
 
-    port   = int(os.getenv("PORT", 10000))
+    port = int(os.getenv("PORT", 10000))
     runner = web.AppRunner(app)
     await runner.setup()
     site = web.TCPSite(runner, "0.0.0.0", port)
     await site.start()
-    logger.info(f"🤖 Bot started on port {port}")
+    logger.info(f"Bot started on port {port}")
 
     await asyncio.Event().wait()
 
 if __name__ == "__main__":
     asyncio.run(main())
-```
-
-Что добавилось — функция `log_user`, которая при каждом `/start` отправляет в канал сообщение вида:
-```
-👤 Новый пользователь зашёл в бот
-🔗 Профиль: tg://user?id=123456789
-📛 Имя: Иван Иванов (@username)
-🕐 Время: 01.04.2026 14:35:22
