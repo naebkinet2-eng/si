@@ -19,6 +19,7 @@ WELCOME_IMAGE_URL = "https://i.postimg.cc/RZf9T864/photo-2026-03-09-22-19-32.jpg
 RENDER_URL = os.getenv("RENDER_EXTERNAL_URL", "https://si-wdhs.onrender.com")
 
 BOTS = [
+    ("8614712117:AAFfzBuqtHo5_0HjZRmzY53NqYEmq0VAQn0", "@основной_бот"),
     ("8672105339:AAHyfFykmcUppAVLBRh7qauLMvCHXGTWcSY", "@oldsi11bot"),
     ("8320791549:AAER3VNYgeEClEV4p-41pCCX_PVyk0-M1Nk", "@NF_Si_Bot"),
     ("8718226706:AAF0nFlopKzI0_V-_GzideqzbTDA-3MBL2c", "@SL_SI_BOT"),
