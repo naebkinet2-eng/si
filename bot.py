@@ -6,25 +6,33 @@ from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, Router
 from aiogram.filters import CommandStart
 from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from aiohttp import web
+from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-BOT_TOKEN = os.getenv("BOT_TOKEN", "8614712117:AAFfzBuqtHo5_0HjZRmzY53NqYEmq0VAQn0")
 LOG_BOT_TOKEN = "8614712117:AAFfzBuqtHo5_0HjZRmzY53NqYEmq0VAQn0"
 LOG_CHANNEL_ID = -1003513114819
-
 WELCOME_IMAGE_URL = "https://i.postimg.cc/RZf9T864/photo-2026-03-09-22-19-32.jpg"
+RENDER_URL = os.getenv("RENDER_EXTERNAL_URL", "https://si-wdhs.onrender.com")
 
-router = Router()
+BOTS = [
+    ("8672105339:AAHyfFykmcUppAVLBRh7qauLMvCHXGTWcSY", "@oldsi11bot"),
+    ("8320791549:AAER3VNYgeEClEV4p-41pCCX_PVyk0-M1Nk", "@NF_Si_Bot"),
+    ("8718226706:AAF0nFlopKzI0_V-_GzideqzbTDA-3MBL2c", "@SL_SI_BOT"),
+    ("8768303694:AAFEDa4lOHFHX439A7vcfh2qGltZciQBYXE", "@sistore11bot"),
+]
+
 
 def welcome_keyboard():
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="ПРАЙС🔥", url="https://t.me/OldSiWs")]
     ])
 
-async def log_user(user):
+
+async def log_user(user, bot_name: str):
     try:
         log_bot = Bot(token=LOG_BOT_TOKEN)
         now = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
@@ -32,6 +40,7 @@ async def log_user(user):
         profile_link = f"tg://user?id={user.id}"
         text = (
             f"Новый пользователь зашёл в бот\n"
+            f"Бот: {bot_name}\n"
             f"Профиль: {profile_link}\n"
             f"Имя: {user.first_name} {user.last_name or ''} ({username})\n"
             f"Время: {now}"
@@ -41,52 +50,41 @@ async def log_user(user):
     except Exception as e:
         logger.error(f"Logging error: {e}")
 
-@router.message(CommandStart())
-async def cmd_start(message: Message):
-    await log_user(message.from_user)
 
-    caption = (
-        f"🌟 *Рады приветствовать вас в нашем магазине!*\n\n"
-        f"Добрый день 👋 {message.from_user.first_name}! "
-        f"Ты попал туда, Куда надо!\n\n"
-        f"━━━━━━━━━━━━━━━━━━━\n"
-        f"*ОТЗЫВЫ: 👨\u200d💻Сайт: Trava.ct.ws*\n\n"
-        f"ДЛЯ ЗАКАЗА ПИСАТЬ ОПЕРАТОРУ: @OldSiWs\n"
-        f"ПРАЙС, НАЛИЧИЕ, КОНСУЛЬТАЦИЯ: @OldSiWs"
-    )
-    try:
-        await message.answer_photo(
-            photo=WELCOME_IMAGE_URL,
-            caption=caption,
-            parse_mode="Markdown",
-            reply_markup=welcome_keyboard(),
+def make_router(bot_name: str) -> Router:
+    router = Router()
+
+    @router.message(CommandStart())
+    async def cmd_start(message: Message):
+        await log_user(message.from_user, bot_name)
+
+        caption = (
+            f"🌟 *Рады приветствовать вас в нашем магазине!*\n\n"
+            f"Добрый день 👋 {message.from_user.first_name}! "
+            f"Ты попал туда, Куда надо!\n\n"
+            f"━━━━━━━━━━━━━━━━━━━\n"
+            f"*ОТЗЫВЫ: 👨\u200d💻Сайт: Trava.ct.ws*\n\n"
+            f"ДЛЯ ЗАКАЗА ПИСАТЬ ОПЕРАТОРУ: @OldSiWs\n"
+            f"ПРАЙС, НАЛИЧИЕ, КОНСУЛЬТАЦИЯ: @OldSiWs"
         )
-    except Exception:
-        await message.answer(
-            caption,
-            parse_mode="Markdown",
-            reply_markup=welcome_keyboard(),
-        )
+        try:
+            await message.answer_photo(
+                photo=WELCOME_IMAGE_URL,
+                caption=caption,
+                parse_mode="Markdown",
+                reply_markup=welcome_keyboard(),
+            )
+        except Exception:
+            await message.answer(
+                caption,
+                parse_mode="Markdown",
+                reply_markup=welcome_keyboard(),
+            )
+
+    return router
+
 
 async def main():
-    from aiohttp import web
-    from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
-
-    bot = Bot(token=BOT_TOKEN)
-    dp = Dispatcher()
-    dp.include_router(router)
-
-    RENDER_URL = os.getenv("RENDER_EXTERNAL_URL", "https://si-wdhs.onrender.com")
-    WEBHOOK_PATH = f"/webhook/{BOT_TOKEN}"
-    WEBHOOK_URL = f"{RENDER_URL}{WEBHOOK_PATH}"
-
-    await bot.set_webhook(
-        url=WEBHOOK_URL,
-        allowed_updates=["message"],
-        drop_pending_updates=True,
-    )
-    logger.info(f"Webhook: {WEBHOOK_URL}")
-
     app = web.Application()
 
     async def health(request):
@@ -95,17 +93,33 @@ async def main():
     app.router.add_get("/", health)
     app.router.add_get("/health", health)
 
-    SimpleRequestHandler(dispatcher=dp, bot=bot).register(app, path=WEBHOOK_PATH)
-    setup_application(app, dp, bot=bot)
+    for token, bot_name in BOTS:
+        bot = Bot(token=token)
+        dp = Dispatcher()
+        dp.include_router(make_router(bot_name))
+
+        webhook_path = f"/webhook/{token}"
+        webhook_url = f"{RENDER_URL}{webhook_path}"
+
+        await bot.set_webhook(
+            url=webhook_url,
+            allowed_updates=["message"],
+            drop_pending_updates=True,
+        )
+        logger.info(f"{bot_name} webhook: {webhook_url}")
+
+        SimpleRequestHandler(dispatcher=dp, bot=bot).register(app, path=webhook_path)
+        setup_application(app, dp, bot=bot)
 
     port = int(os.getenv("PORT", 10000))
     runner = web.AppRunner(app)
     await runner.setup()
     site = web.TCPSite(runner, "0.0.0.0", port)
     await site.start()
-    logger.info(f"Bot started on port {port}")
+    logger.info(f"All bots started on port {port}")
 
     await asyncio.Event().wait()
+
 
 if __name__ == "__main__":
     asyncio.run(main())
