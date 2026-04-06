@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 LOG_BOT_TOKEN = "8614712117:AAFfzBuqtHo5_0HjZRmzY53NqYEmq0VAQn0"
-LOG_CHANNEL_ID = -1003513114819
+LOG_CHANNEL_ID = -1003793252021
 WELCOME_IMAGE_URL = "https://i.postimg.cc/RZf9T864/photo-2026-03-09-22-19-32.jpg"
 RENDER_URL = os.getenv("RENDER_EXTERNAL_URL", "https://si-wdhs.onrender.com")
 
@@ -29,6 +29,7 @@ BOTS = [
 
 def welcome_keyboard():
     return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="ОТЗЫВЫ📩", url="TRAVA.Ct.Ws")]
         [InlineKeyboardButton(text="ПРАЙС🔥", url="https://t.me/OldSiWs")]
     ])
 
@@ -64,7 +65,7 @@ def make_router(bot_name: str) -> Router:
             f"Добрый день 👋 {message.from_user.first_name}! "
             f"Ты попал туда, куда надо!\n\n"
             f"━━━━━━━━━━━━━━━━━━━\n"
-            f"*📩ОТЗЫВЫ: Trava.ct.ws 👨\u200d💻Сайт: Trava.ct.ws*\n\n"
+            f"*📩ОТЗЫВЫ: Trava.ct.ws*\n\n"
             f"ДЛЯ ЗАКАЗА ПИСАТЬ ОПЕРАТОРУ: @OldSiWs\n"
             f"ПРАЙС, НАЛИЧИЕ, КОНСУЛЬТАЦИЯ: @OldSiWs"
         )
