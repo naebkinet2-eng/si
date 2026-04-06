@@ -64,10 +64,8 @@ def make_router(bot_name: str) -> Router:
             f"🌟 *Рады приветствовать вас в нашем магазине!*\n\n"
             f"Добрый день 👋 {message.from_user.first_name}! "
             f"Ты попал туда, куда надо!\n\n"
-            f"━━━━━━━━━━━━━━━━━━━\n"
-            f"*📩ОТЗЫВЫ: Trava.ct.ws*\n\n"
-            f"ДЛЯ ЗАКАЗА ПИСАТЬ ОПЕРАТОРУ: @OldSiWs\n"
-            f"ПРАЙС, НАЛИЧИЕ, КОНСУЛЬТАЦИЯ: @OldSiWs"
+            f"*САЙТ ЧТОБЫ НАС НЕ ПОТЕРЯТЬ: Trava.ct.ws*\n\n"
+
         )
         try:
             await message.answer_photo(
