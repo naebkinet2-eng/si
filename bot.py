@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 LOG_BOT_TOKEN = "8614712117:AAFfzBuqtHo5_0HjZRmzY53NqYEmq0VAQn0"
-LOG_CHANNEL_ID = -1003793252021
+LOG_CHANNEL_ID = -1003513114819
 WELCOME_IMAGE_URL = "https://i.postimg.cc/RZf9T864/photo-2026-03-09-22-19-32.jpg"
 RENDER_URL = os.getenv("RENDER_EXTERNAL_URL", "https://si-wdhs.onrender.com")
 
