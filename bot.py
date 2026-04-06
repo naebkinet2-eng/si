@@ -29,7 +29,7 @@ BOTS = [
 
 def welcome_keyboard():
     return InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="ОТЗЫВЫ📩", url="TRAVA.Ct.Ws")]
+        [InlineKeyboardButton(text="ОТЗЫВЫ📩", url="TRAVA.Ct.Ws")],
         [InlineKeyboardButton(text="ПРАЙС🔥", url="https://t.me/OldSiWs")]
     ])
 
