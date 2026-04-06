@@ -64,8 +64,7 @@ def make_router(bot_name: str) -> Router:
             f"Добрый день 👋 {message.from_user.first_name}! "
             f"Ты попал туда, куда надо!\n\n"
             f"━━━━━━━━━━━━━━━━━━━\n"
-            f"*📩ОТЗЫВЫ: Trava.ct.ws 
-            👨\u200d💻Сайт: Trava.ct.ws*\n\n"
+            f"*📩ОТЗЫВЫ: Trava.ct.ws 👨\u200d💻Сайт: Trava.ct.ws*\n\n"
             f"ДЛЯ ЗАКАЗА ПИСАТЬ ОПЕРАТОРУ: @OldSiWs\n"
             f"ПРАЙС, НАЛИЧИЕ, КОНСУЛЬТАЦИЯ: @OldSiWs"
         )
