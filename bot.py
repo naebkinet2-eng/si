@@ -7,7 +7,7 @@ from aiogram import Bot, Dispatcher, Router
 from aiogram.filters import CommandStart
 from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from aiohttp import web
-from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
+from aiogram.webhook.aiohttp_server import SimpleRequestHandler
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
@@ -29,7 +29,10 @@ BOTS = [
 
 def welcome_keyboard():
     return InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="📦УЗНАТЬ НАЛИЧИЕ И ЦЕНЫ", url="https://t.me/Oldsiws?text=Привет!👋%20Я%20из%20,%20скинь%20актуальный%20прайс")]
+        [InlineKeyboardButton(
+            text="📦УЗНАТЬ НАЛИЧИЕ И ЦЕНЫ",
+            url="https://t.me/Oldsiws?text=Привет!👋%20Я%20из%20,%20скинь%20актуальный%20прайс"
+        )]
     ])
 
 
@@ -59,12 +62,12 @@ def make_router(bot_name: str) -> Router:
     async def cmd_start(message: Message):
         await log_user(message.from_user, bot_name)
 
+        # ИСПРАВЛЕНО: убран лишний * в конце, добавлен пробел между предложениями
         caption = (
             f"🌟 *Рады приветствовать вас в нашем магазине!*\n\n"
             f"Добрый день 👋 {message.from_user.first_name}! "
-            f"Ассортимент и актуальные цены зависят от вашего региона."
-            f"Чтобы получить актуальный прайс — жми кнопку ниже 👇*\n\n"
-
+            f"Ассортимент и актуальные цены зависят от вашего региона. "
+            f"Чтобы получить актуальный прайс — жми кнопку ниже 👇"
         )
         try:
             await message.answer_photo(
@@ -107,8 +110,8 @@ async def main():
         )
         logger.info(f"{bot_name} webhook: {webhook_url}")
 
+        # ИСПРАВЛЕНО: убран setup_application из цикла — вызывал конфликты
         SimpleRequestHandler(dispatcher=dp, bot=bot).register(app, path=webhook_path)
-        setup_application(app, dp, bot=bot)
 
     port = int(os.getenv("PORT", 10000))
     runner = web.AppRunner(app)
