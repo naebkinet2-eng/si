@@ -29,7 +29,7 @@ BOTS = [
 
 def welcome_keyboard():
     return InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="📦УЗНАТЬ НАЛИЧИЕ И ЦЕНЫ", url="https://t.me/OldSiWs")]
+        [InlineKeyboardButton(text="📦УЗНАТЬ НАЛИЧИЕ И ЦЕНЫ", url="https://t.me/Oldsiws?text=Привет!👋%20Я%20из%20,%20скинь%20актуальный%20прайс")]
     ])
 
 
@@ -62,7 +62,7 @@ def make_router(bot_name: str) -> Router:
         caption = (
             f"🌟 *Рады приветствовать вас в нашем магазине!*\n\n"
             f"Добрый день 👋 {message.from_user.first_name}! "
-            f"Ассортимент и актуальные цены зависят от вашего региона.
+            f"Ассортимент и актуальные цены зависят от вашего региона."
             f"Чтобы получить актуальный прайс — жми кнопку ниже 👇*\n\n"
 
         )
