@@ -29,8 +29,7 @@ BOTS = [
 
 def welcome_keyboard():
     return InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="ОТЗЫВЫ📩", url="TRAVA.Ct.Ws")],
-        [InlineKeyboardButton(text="НАПИСАТЬ ОПЕРАТОРУ🔥", url="https://t.me/OldSiWs")]
+        [InlineKeyboardButton(text="📦УЗНАТЬ НАЛИЧИЕ И ЦЕНЫ", url="https://t.me/OldSiWs")]
     ])
 
 
@@ -63,8 +62,8 @@ def make_router(bot_name: str) -> Router:
         caption = (
             f"🌟 *Рады приветствовать вас в нашем магазине!*\n\n"
             f"Добрый день 👋 {message.from_user.first_name}! "
-            f"Чтобы узнать наличие, пишите оператору\n\n"
-            f"*САЙТ ЧТОБЫ НАС НЕ ПОТЕРЯТЬ: Trava.ct.ws*\n\n"
+            f"Ассортимент и актуальные цены зависят от вашего региона.
+            f"Чтобы получить актуальный прайс — жми кнопку ниже 👇*\n\n"
 
         )
         try:
