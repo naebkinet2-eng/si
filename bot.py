@@ -30,8 +30,8 @@ BOTS = [
 def welcome_keyboard():
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(
-            text="📦УЗНАТЬ НАЛИЧИЕ И ЦЕНЫ",
-            url="https://t.me/Oldsiws?text=Привет!👋%,%20скинь%20актуальный%20прайс"
+            text="🎁УЗНАТЬ НАЛИЧИЕ И ЦЕНЫ",
+            url="https://t.me/Oldsiws?text=Привет!👋%20скинь%20актуальный%20прайс"
         )]
     ])
 
